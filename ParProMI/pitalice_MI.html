@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PARPRO kviz - prvih 5 poglavlja + MI2025</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #d9e1ee;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --good-bg: #dcfce7;
+      --good-border: #22c55e;
+      --bad-bg: #fee2e2;
+      --bad-border: #ef4444;
+      --warn-bg: #fff7ed;
+      --warn-border: #f97316;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e0ecff, transparent 35%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+    header {
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+      letter-spacing: -0.03em;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 850px;
+    }
+    .panel {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .topbar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+    .stat .label {
+      display: block;
+      color: var(--muted);
+      font-size: .82rem;
+      margin-bottom: 4px;
+    }
+    .stat .value {
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+    .progress {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 8px 0 20px;
+    }
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #06b6d4);
+      transition: width .25s ease;
+    }
+    .question-card {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      background: var(--panel);
+    }
+    .qid {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .9rem;
+      margin-bottom: 10px;
+    }
+    .question {
+      font-size: 1.14rem;
+      line-height: 1.55;
+      font-weight: 700;
+      white-space: pre-wrap;
+      margin-bottom: 18px;
+    }
+    .answers {
+      display: grid;
+      gap: 10px;
+    }
+    button {
+      font: inherit;
+    }
+    .answer-btn {
+      width: 100%;
+      text-align: left;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 13px 14px;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform .06s ease, border-color .16s ease, background .16s ease;
+      white-space: pre-wrap;
+    }
+    .answer-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .answer-btn:disabled {
+      cursor: default;
+    }
+    .answer-btn.correct {
+      background: var(--good-bg);
+      border-color: var(--good-border);
+    }
+    .answer-btn.wrong {
+      background: var(--bad-bg);
+      border-color: var(--bad-border);
+    }
+    .answer-prefix {
+      font-weight: 800;
+      margin-right: 8px;
+      color: var(--primary-dark);
+    }
+    .feedback {
+      display: none;
+      margin-top: 14px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+    .feedback.good {
+      display: block;
+      background: var(--good-bg);
+      border: 1px solid var(--good-border);
+    }
+    .feedback.bad {
+      display: block;
+      background: var(--bad-bg);
+      border: 1px solid var(--bad-border);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .primary, .secondary {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .primary {
+      background: var(--primary);
+      color: white;
+    }
+    .primary:hover { background: var(--primary-dark); }
+    .secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .round-summary {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 18px;
+      padding: 15px;
+      line-height: 1.5;
+      margin-top: 16px;
+    }
+    .hidden { display: none !important; }
+    .done {
+      text-align: center;
+      padding: 28px 12px;
+    }
+    .done h2 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+    .small {
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.5;
+    }
+    @media (max-width: 760px) {
+      .topbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .panel { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>PARPRO kviz - prvih 5 poglavlja + MI2025</h1>
+      <p class="lead">U kvizu su pitanja iz PARPRO_PITALICE koja se odnose na prvih pet poglavlja skripte: Uvod, MPI, sinkroni PRAM, asinkroni PRAM i postupak oblikovanja paralelnih algoritama. Dodana su i iskoristiva ABCD pitanja iz MI2025.docx. Netočno odgovorena pitanja automatski ulaze u sljedeću rundu, a pitanja se na početku svake runde miješaju.</p>
+    </header>
+
+    <main class="panel" id="app">
+      <div class="topbar">
+        <div class="stat"><span class="label">Runda</span><span class="value" id="round">1</span></div>
+        <div class="stat"><span class="label">Pitanje u rundi</span><span class="value" id="position">0 / 0</span></div>
+        <div class="stat"><span class="label">Točno u ovoj rundi</span><span class="value" id="correctRound">0</span></div>
+        <div class="stat"><span class="label">Ukupno pitanja</span><span class="value" id="totalQuestions">108</span></div>
+      </div>
+      <div class="progress" aria-label="Napredak u rundi"><div id="progressFill"></div></div>
+
+      <section id="quizArea" class="question-card">
+        <div class="qid" id="qid"></div>
+        <div class="question" id="questionText"></div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="actions">
+          <button class="primary hidden" id="nextBtn">Sljedeće pitanje</button>
+        </div>
+      </section>
+
+      <section id="betweenRounds" class="hidden round-summary"></section>
+      <section id="doneArea" class="hidden done">
+        <h2>Gotovo! Sva pitanja su točno odgovorena.</h2>
+        <p class="small">Kviz završava tek kada u jednoj od rundi više nema netočnih odgovora.</p>
+        <button class="primary" id="restartBtnDone">Ponovno pokreni kviz</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+  {
+    "id": 1,
+    "question": "Koji je osnovni cilj paralelnog računanja?",
+    "options": [
+      "Smanjiti potrošnju energije računala",
+      "Riješiti problem u manje vremena nego što bi zahtijevalo slijedno računanje",
+      "Povećati kapacitet radne memorije",
+      "Olakšati programiranje kompleksnih problema"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #1"
+  },
+  {
+    "id": 2,
+    "question": "Prema Flynnovoj taksonomiji, kako se klasificiraju računala koja imaju više procesora koji izvode\nrazličite instrukcije na različitim podacima?",
+    "options": [
+      "SISD (Single Instruction, Single Data Stream)",
+      "SIMD (Single Instruction, Multiple Data Stream)",
+      "MISD (Multiple Instruction, Single Data Stream)",
+      "MIMD (Multiple Instruction, Multiple Data Stream)"
+    ],
+    "correct": 3,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #2"
+  },
+  {
+    "id": 3,
+    "question": "Što je glavna prednost modela računala sa zajedničkom memorijom (shared memory)?",
+    "options": [
+      "Neograničena skalabilnost",
+      "Lakše programiranje jer nije potrebno eksplicitno dijeliti podatke",
+      "Veća brzina pristupa udaljenoj memoriji",
+      "Manja potreba za sinkronizacijom"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #3"
+  },
+  {
+    "id": 5,
+    "question": "Koja MPI funkcija se koristi za dobivanje ukupnog broja procesa u komunikacijskoj grupi?",
+    "options": [
+      "‘MPI_Comm_rank‘",
+      "‘MPI_Comm_size‘",
+      "‘MPI_Init‘",
+      "‘MPI_Finalize‘"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #5"
+  },
+  {
+    "id": 7,
+    "question": "Što je Amdahlov zakon?",
+    "options": [
+      "Način opisivanja učinkovitosti paralelnog algoritma temeljen na udjelu koji se može paralelizirati",
+      "Zakon koji definira maksimalnu brzinu komunikacije u mreži",
+      "Pravilo za optimalnu raspodjelu zadataka među procesorima",
+      "Zakon koji opisuje rast računalne moći kroz vrijeme"
+    ],
+    "correct": 0,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #7"
+  },
+  {
+    "id": 8,
+    "question": "U PRAM modelu, koja inačica dopušta istovremeno čitanje od strane više procesora, ali samo jednom\nprocesoru istovremeno pisanje?",
+    "options": [
+      "EREW (Exclusive Read, Exclusive Write)",
+      "CRCW (Concurrent Read, Concurrent Write)",
+      "CREW (Concurrent Read, Exclusive Write)",
+      "ERCW (Exclusive Read, Concurrent Write)"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #8"
+  },
+  {
+    "id": 10,
+    "question": "Koja je glavna karakteristika \"sitno zrnate\" (fine-grained) podjele u paralelnim algoritmima?",
+    "options": [
+      "Velika količina računanja između komunikacija",
+      "Mala količina računanja između uzastopnih udaljenih komunikacija",
+      "Algoritam se izvodi na samo jednom procesoru",
+      "Komunikacija se uopće ne događa"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #10"
+  },
+  {
+    "id": 11,
+    "question": "Koja od navedenih MPI funkcija je blokirajuća?",
+    "options": [
+      "‘MPI_Isend‘",
+      "‘MPI_Irecv‘",
+      "‘MPI_Recv‘",
+      "‘MPI_Test‘"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #11"
+  },
+  {
+    "id": 13,
+    "question": "Što opisuje Gustafsonov zakon?",
+    "options": [
+      "Pretpostavlja da je veličina problema konstantna",
+      "Opisuje ubrzanje uz promjenjivu veličinu problema, gdje se broj procesora skalira s veličinom\nproblema",
+      "Definira fizička ograničenja brzine procesora",
+      "Određuje broj zadataka koji se mogu istovremeno izvoditi"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #13"
+  },
+  {
+    "id": 16,
+    "question": "Što je \"potpuni zastoj\" (deadlock)?",
+    "options": [
+      "Stanje u kojem svi procesi uspješno završe s radom",
+      "Stanje u kojem dva ili više procesa čekaju jedan na drugoga na resurs ili događaj",
+      "Stanje u kojem jedan proces obavlja sav posao",
+      "Stanje u kojem se program neočekivano prekida zbog greške"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #16"
+  },
+  {
+    "id": 18,
+    "question": "Kako se u MPI-u naziva globalna grupa koja uključuje sve procese?",
+    "options": [
+      "‘MPI_COMM_ALL‘",
+      "‘MPI_GROUP_WORLD‘",
+      "‘MPI_COMM_WORLD‘",
+      "‘MPI_GROUP_ALL‘"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #18"
+  },
+  {
+    "id": 20,
+    "question": "Koja je svrha funkcije ‘MPI_Barrier‘?",
+    "options": [
+      "Slanje poruke svim procesima",
+      "Primanje poruke od bilo kojeg procesa",
+      "Globalna sinkronizacija svih procesa unutar grupe",
+      "Prekidanje izvođenja svih procesa"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #20"
+  },
+  {
+    "id": 21,
+    "question": "Što je \"podatkovni paralelizam\" (data parallelism)?",
+    "options": [
+      "Primjena različitih operacija na isti element podatkovne strukture",
+      "Primjena iste operacije na više elemenata podatkovne strukture",
+      "Podjela programa na funkcionalne cjeline",
+      "Model u kojem zadaci komuniciraju isključivo kanalima"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #21"
+  },
+  {
+    "id": 23,
+    "question": "Što je PRAM (Parallel Random Access Machine) model?",
+    "options": [
+      "MIMD model s raspodijeljenom memorijom",
+      "SIMD model sa zajedničkom memorijom",
+      "MIMD model sa zajedničkom memorijom koji je sinkron",
+      "Asinkroni model s raspodijeljenom memorijom"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #23"
+  },
+  {
+    "id": 27,
+    "question": "Koja je razlika između blokirajuće i neblokirajuće komunikacije u MPI-u?",
+    "options": [
+      "Blokirajuća je brža od neblokirajuće",
+      "Neblokirajuća funkcija vraća kontrolu odmah, a završetak se provjerava naknadno",
+      "Blokirajuća se koristi samo za slanje, a neblokirajuća samo za primanje",
+      "Nema stvarne razlike, ovisi o implementaciji"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #27"
+  },
+  {
+    "id": 28,
+    "question": "Što je \"zrnatost\" (granularity) paralelnog algoritma?",
+    "options": [
+      "Omjer između količine računanja i količine komunikacije",
+      "Ukupan broj procesora korištenih u algoritmu",
+      "Veličina najmanjeg dijela podatka",
+      "Broj grešaka u paralelnom programu"
+    ],
+    "correct": 0,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #28"
+  },
+  {
+    "id": 29,
+    "question": "Koji je nedostatak SIMD modela?",
+    "options": [
+      "Teže ga je programirati od MIMD modela",
+      "Sporiji je od SISD modela",
+      "Grananja unutar petlji moraju se primijeniti na sve procesore, što ga čini neefikasnim za nejednolike\nobrade",
+      "Zahtijeva zajedničku memoriju"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #29"
+  },
+  {
+    "id": 31,
+    "question": "Koja MPI funkcija se koristi za slanje različitih dijelova niza s jednog (root) procesa svim procesima u\ngrupi?",
+    "options": [
+      "‘MPI_Bcast‘",
+      "‘MPI_Gather‘",
+      "‘MPI_Scatter‘",
+      "‘MPI_Reduce‘"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #31"
+  },
+  {
+    "id": 33,
+    "question": "Što je NUMA (Non-Uniform Memory Access) model?",
+    "options": [
+      "Model u kojem svi procesori imaju jednako vrijeme pristupa svim memorijskim lokacijama",
+      "Funkcionalno se promatra kao skup procesora s više memorijskih jedinica i zajedničkim adresnim\nprostorom, ali različitim vremenom pristupa",
+      "Stariji naziv za raspodijeljenu memoriju",
+      "Model koji se koristi isključivo za grafičke procesore"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #33"
+  },
+  {
+    "id": 36,
+    "question": "Koja je uloga parametra \"tag\" u MPI funkcijama za slanje i primanje poruka?",
+    "options": [
+      "Određuje veličinu poruke",
+      "Služi kao oznaka vrste poruke za razlikovanje između različitih komunikacija",
+      "Definira prioritet poruke",
+      "Sadrži adresu pošiljatelja"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #36"
+  },
+  {
+    "id": 41,
+    "question": "Što je \"podatkovna ovisnost\" (data dependency)?",
+    "options": [
+      "Situacija kad algoritam ovisi o vanjskim podacima",
+      "Višestruka uporaba iste memorijske lokacije koja može spriječiti paralelizaciju",
+      "Ovisnost programa o tipu podataka",
+      "Potreba za velikom količinom podataka"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #41"
+  },
+  {
+    "id": 42,
+    "question": "Koja je svrha ‘MPI_Reduce‘ operacije?",
+    "options": [
+      "Slanje iste poruke svim procesima",
+      "Skupljanje podataka od svih procesa i provođenje neke operacije (npr. zbrajanje) nad njima na\njednom (root) procesu",
+      "Raspodjela različitih dijelova niza svim procesima",
+      "Sinkronizacija bez prijenosa podataka"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #42"
+  },
+  {
+    "id": 43,
+    "question": "U modelu \"gospodar-sluga\" (master-worker/slave), tko je odgovoran za raspodjelu poslova?",
+    "options": [
+      "Radnici (sluge) međusobno",
+      "Voditelj (gospodar)",
+      "Svi procesi imaju jednaku ulogu",
+      "Vanjski raspoređivač zadataka"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #43"
+  },
+  {
+    "id": 50,
+    "question": "Koja je temeljna pretpostavka asinkronog PRAM (aPRAM) modela?",
+    "options": [
+      "Svi procesori rade u \"lock step\" načinu",
+      "Procesori su međusobno neovisni i nesinkronizirani",
+      "Pristup globalnoj i lokalnoj memoriji traje jednako",
+      "Postoji samo jedan procesor"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #50"
+  },
+  {
+    "id": 51,
+    "question": "U MIMD modelu, što rade procesori?",
+    "options": [
+      "Više procesora izvodi istu instrukciju na različitim podacima",
+      "Jedan procesor izvodi jednu instrukciju na jednom podatku",
+      "Više procesora izvode različite instrukcije na različitim podacima",
+      "Više procesora izvodi različite instrukcije na istom podatku"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #51"
+  },
+  {
+    "id": 52,
+    "question": "Koja je temeljna ideja paraleliziranja programa?",
+    "options": [
+      "Povećanje složenosti koda",
+      "Smanjenje broja potrebnih procesora",
+      "Raščlanjivanje sekvencijskog programa na nezavisne podzadatke koji se mogu izvoditi paralelno",
+      "Korištenje isključivo grafičkih procesora"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #52"
+  },
+  {
+    "id": 53,
+    "question": "Koji je glavni nedostatak modela s raspodijeljenom memorijom?",
+    "options": [
+      "Ograničena količina memorije",
+      "Spor pristup lokalnoj memoriji",
+      "Programer je odgovoran za eksplicitno dijeljenje podataka među procesima",
+      "Ne podržava MIMD arhitekturu"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #53"
+  },
+  {
+    "id": 54,
+    "question": "Koji se programski model često naziva SPMD (Single Program, Multiple Data)?",
+    "options": [
+      "Podatkovni paralelizam",
+      "Zajednička memorija",
+      "Razmjena poruka (Message Passing)",
+      "Sustav zadataka i kanala"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #54"
+  },
+  {
+    "id": 55,
+    "question": "U MPI-u, ako proces želi primiti poruku od bilo kojeg pošiljatelja, koji parametar koristi u ‘MPI_Recv‘\nfunkciji?",
+    "options": [
+      "‘MPI_ANY_TAG‘",
+      "‘MPI_ANY_SOURCE‘",
+      "‘MPI_COMM_WORLD‘",
+      "‘NULL‘"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #55"
+  },
+  {
+    "id": 56,
+    "question": "Kako se naziva operacija u PRAM modelu koja za ulazni niz [a0, a1, ..., an-1] vraća [a0, (a0 ⊕ a1), ..., (a0 ⊕ a1 ⊕ ... ⊕ an-1)]?",
+    "options": [
+      "Reduciranje (reduce)",
+      "Zbroj prefiksa (prefix-sum) ili scan",
+      "Prescan",
+      "Sortiranje (sort)"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #56"
+  },
+  {
+    "id": 60,
+    "question": "Što je cilj \"funkcionalne dekompozicije\"?",
+    "options": [
+      "Podjela podataka na manje dijelove",
+      "Podjela problema na manje funkcionalne cjeline koje se mogu rješavati istodobno",
+      "Grupiranje zadataka radi smanjenja komunikacije",
+      "Pridruživanje zadataka procesorima"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #60"
+  },
+  {
+    "id": 61,
+    "question": "Kakav je pristup memoriji u PRAM modelu?",
+    "options": [
+      "Pristup lokalnoj memoriji je brži od globalne",
+      "Svi procesori imaju jednak trošak pristupa bilo kojoj memorijskoj lokaciji",
+      "Pristup memoriji je asinkron",
+      "Memorija je raspodijeljena"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #61"
+  },
+  {
+    "id": 62,
+    "question": "Koji je glavni razlog zašto se moderni procesori sve više okreću paralelizaciji na razini sklopovlja (npr.\nviše jezgri)?",
+    "options": [
+      "Povećanje cijene procesora",
+      "Smanjenje potrošnje energije",
+      "Brzina jednog ciklusa se približava fizikalnim ograničenjima",
+      "Jednostavnost izrade takvih procesora"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #62"
+  },
+  {
+    "id": 63,
+    "question": "Koji tip komunikacije u MPI-u uključuje sve procese u grupi?",
+    "options": [
+      "Point-to-point",
+      "Collective (globalna) komunikacija",
+      "Probe funkcije",
+      "Asinkrona komunikacija"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #63"
+  },
+  {
+    "id": 66,
+    "question": "Koja je glavna karakteristika \"krupno zrnate\" (coarse-grained) podjele?",
+    "options": [
+      "Mala količina računanja u odnosu na komunikaciju",
+      "Velika količina računanja u odnosu na komunikaciju",
+      "Podjela populacije na subpopulacije veličine jedne jedinke",
+      "Koristi se samo u SIMD modelima"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #66"
+  },
+  {
+    "id": 70,
+    "question": "U asinkronom PRAM (aPRAM) modelu, kako se naziva sinkronizacija svih procesora?",
+    "options": [
+      "Ograda (barrier)",
+      "Čekanje (wait)",
+      "Zastoj (deadlock)",
+      "Signal"
+    ],
+    "correct": 0,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #70"
+  },
+  {
+    "id": 77,
+    "question": "U MPI-u, koja funkcija omogućuje provjeru postojanja dolazne poruke bez njenog primanja?",
+    "options": [
+      "‘MPI_Wait‘",
+      "‘MPI_Recv‘",
+      "‘MPI_Iprobe‘ ili ‘MPI_Probe‘",
+      "‘MPI_Test‘"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #77"
+  },
+  {
+    "id": 81,
+    "question": "Što je \"lokalnost\" (locality) kao svojstvo paralelnih algoritama?",
+    "options": [
+      "Mogućnost izvođenja algoritma na bilo kojem računalu",
+      "Veći omjer lokalnog u odnosu na udaljeni pristup memoriji",
+      "Svojstvo da svi zadaci komuniciraju sa svima",
+      "Mogućnost korištenja dijelova algoritma u drugim programima"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #81"
+  },
+  {
+    "id": 82,
+    "question": "Koja je uloga \"binarnog stabla\" u paralelnom algoritmu za reduciranje?",
+    "options": [
+      "Služi za sortiranje elemenata",
+      "Omogućuje logaritamsku složenost operacije zbrajanjem parova elemenata na svakoj razini stabla",
+      "Koristi se za pohranu cijele populacije",
+      "Definira komunikaciju u prstenastoj topologiji"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #82"
+  },
+  {
+    "id": 83,
+    "question": "Kakva je komunikacija u \"trivijalno paralelnom\" problemu?",
+    "options": [
+      "Intenzivna globalna komunikacija",
+      "Zadaci se izvode bez potrebe za međusobnom komunikacijom",
+      "Komunikacija se odvija samo sa susjednim zadacima",
+      "Komunikacija je uvijek asinkrona"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #83"
+  },
+  {
+    "id": 86,
+    "question": "Zašto je u MPI programu preporučljivo koristiti specifične ‘source‘ i ‘tag‘ parametre umjesto\n‘MPI_ANY_SOURCE‘ i ‘MPI_ANY_TAG‘?",
+    "options": [
+      "Da bi se ubrzala komunikacija",
+      "Da bi se postigao determinizam i izbjegao nedefiniran redoslijed primitka poruka",
+      "Da bi se smanjila veličina poruke",
+      "Zato što ‘ANY‘ parametri često uzrokuju greške"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #86"
+  },
+  {
+    "id": 88,
+    "question": "Što je \"skalabilnost\" (scalability) kao svojstvo paralelnog algoritma?",
+    "options": [
+      "Sposobnost rada samo na fiksnom broju procesora",
+      "Mogućnost prilagođavanja i iskorištavanja proizvoljnog (dodatnog) broja procesora",
+      "Mogućnost rada s različitim tipovima podataka",
+      "Sposobnost ispravljanja grešaka tijekom izvođenja"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #88"
+  },
+  {
+    "id": 89,
+    "question": "U PRAM modelu, algoritam zbroja prefiksa složenosti O(log n) zahtijeva najmanje koliko procesora?",
+    "options": [
+      "1",
+      "n",
+      "n/2",
+      "log n"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #89"
+  },
+  {
+    "id": 90,
+    "question": "Koja je uloga \"komunikacijskih kanala\" u modelu zadataka i kanala?",
+    "options": [
+      "Pohranjuju lokalne varijable zadataka",
+      "Predstavljaju zadatke koji se mogu izvoditi paralelno",
+      "Predstavljaju veze kojima zadaci međusobno komuniciraju",
+      "Definiraju redoslijed izvođenja zadataka"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #90"
+  },
+  {
+    "id": 100,
+    "question": "Koji je ključni kompromis pri odabiru zrnatosti (granularity) paralelnog algoritma?",
+    "options": [
+      "Između brzine procesora i brzine memorije",
+      "Između broja zadataka i veličine problema",
+      "Između potencijalnog stupnja paralelizma (sitna zrnatost) i troškova komunikacije i sinkronizacije\n(krupna zrnatost)",
+      "Između korištenja CPU-a i GPU-a"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #100"
+  },
+  {
+    "id": 103,
+    "question": "U MPI-u, što se događa s redoslijedom poruka poslanih od jednog procesa prema drugom u\npoint-to-point komunikaciji?",
+    "options": [
+      "Redoslijed je uvijek očuvan",
+      "Redoslijed je nasumičan",
+      "Redoslijed ovisi o opterećenju mreže",
+      "Redoslijed se može promijeniti ako su poruke različite veličine"
+    ],
+    "correct": 0,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #103"
+  },
+  {
+    "id": 104,
+    "question": "Kako se u MPI-u naziva komunikacija između dva određena procesa?",
+    "options": [
+      "Kolektivna komunikacija",
+      "Globalna komunikacija",
+      "Point-to-point komunikacija",
+      "Sinkrona komunikacija"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #104"
+  },
+  {
+    "id": 107,
+    "question": "Koji je nedostatak korištenja algoritma koji radi samo na fiksnom broju procesora?",
+    "options": [
+      "Veća potrošnja memorije",
+      "Loša skalabilnost",
+      "Povećana količina komunikacije",
+      "Teža implementacija"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #107"
+  },
+  {
+    "id": 109,
+    "question": "Koja je razlika između ‘MPI_Gather‘ i ‘MPI_Scatter‘?",
+    "options": [
+      "‘MPI_Gather‘ šalje podatke od jednog svima, a ‘MPI_Scatter‘ skuplja podatke od svih na jedan\nproces",
+      "‘MPI_Gather‘ skuplja podatke od svih procesa na jedan (root), a ‘MPI_Scatter‘ distribuira podatke s\njednog (root) na sve procese",
+      "Obje funkcije rade istu stvar, ali je ‘MPI_Gather‘ brži",
+      "‘MPI_Scatter‘ radi samo s cjelobrojnim podacima"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #109"
+  },
+  {
+    "id": 111,
+    "question": "Koja je osnovna karakteristika trivijalno paralelnog algoritma (embarrassingly parallel)?",
+    "options": [
+      "Svi zadaci moraju međusobno komunicirati",
+      "Zadaci se mogu izvoditi neovisno, bez potrebe za komunikacijom među njima",
+      "Algoritam zahtijeva globalnu sinkronizaciju nakon svake instrukcije",
+      "Koristi se isključivo za sortiranje podataka"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #111"
+  },
+  {
+    "id": 112,
+    "question": "Koji od navedenih modela paralelnih programa omogućuje dinamičku promjenu broja zadataka\ntijekom izvođenja?",
+    "options": [
+      "Razmjena poruka (Message Passing) u osnovnoj inačici",
+      "Podatkovni paralelizam (Data Parallelism)",
+      "Sustav zadataka i kanala (Tasks and Channels)",
+      "Zajednička memorija (Shared Memory)"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #112"
+  },
+  {
+    "id": 113,
+    "question": "U PRAM modelu, čemu je jednaka složenost paralelnog algoritma za reduciranje pomoću binarnog\nstabla?",
+    "options": [
+      "$O(n)$",
+      "$O(n^2)$",
+      "$O(\\log n)$",
+      "$O(1)$"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #113"
+  },
+  {
+    "id": 117,
+    "question": "Koja je pretpostavka Gustafsonovog zakona koja ga razlikuje od Amdahlovog?",
+    "options": [
+      "Broj procesora je konstantan",
+      "Trajanje slijednog dijela programa raste s veličinom problema",
+      "Broj procesora skalira se proporcionalno s veličinom problema, a trajanje slijednog dijela ostaje isto",
+      "Učinkovitost je uvijek 100%"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #117"
+  },
+  {
+    "id": 119,
+    "question": "U MPI-u, ako je poziv ‘MPI_Send‘ blokirajući, znači li to nužno da je poruka primljena?",
+    "options": [
+      "Da, uvijek znači da je poruka primljena",
+      "Ne, znači samo da se korištena memorija za slanje može ponovno upotrijebiti, a primitak ovisi o\nimplementaciji",
+      "Da, ali samo ako je poruka manja od 1 KB",
+      "Ne, to znači da je poruka spremljena u međuspremnik, ali nikad nije poslana"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #119"
+  },
+  {
+    "id": 124,
+    "question": "Kako se naziva strategija raspodjele posla kod trivijalno paralelnih problema gdje jedan voditelj šalje\nposlove radnicima na njihov zahtjev?",
+    "options": [
+      "Skup zadataka (pool of tasks)",
+      "Cikličko pridruživanje",
+      "Rekurzivna bisekcija",
+      "Slijedna kompozicija"
+    ],
+    "correct": 0,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #124"
+  },
+  {
+    "id": 125,
+    "question": "Zašto je u aPRAM modelu važno razmatrati parametar B(p), vrijeme potrebno za sinkronizaciju?",
+    "options": [
+      "Zato što je uvijek jednak nuli",
+      "Zato što trošak sinkronizacije obično raste s brojem procesora i značajno utječe na ukupno vrijeme\nizvođenja",
+      "Zato što ovisi samo o brzini najbržeg procesora",
+      "Zato što je relevantan samo za slijedne algoritme"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #125"
+  },
+  {
+    "id": 128,
+    "question": "U MPI-u, što se mora nalaziti prije bilo koje MPI komunikacijske funkcije u programu?",
+    "options": [
+      "‘MPI_Finalize()‘",
+      "‘MPI_Comm_rank()‘",
+      "‘MPI_Init()‘",
+      "‘MPI_Barrier()‘"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #128"
+  },
+  {
+    "id": 133,
+    "question": "U PRAM algoritmu ‘+_prescan‘, koja se vrijednost upisuje u korijen stabla prije početka\n‘down_sweep‘ procedure?",
+    "options": [
+      "Zbroj svih elemenata",
+      "Vrijednost prvog elementa",
+      "Neutralni element za zadanu operaciju (npr. 0 za zbrajanje)",
+      "Najveći element u nizu"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #133"
+  },
+  {
+    "id": 141,
+    "question": "Što je \"podatkovna dekompozicija\" (domain decomposition)?",
+    "options": [
+      "Podjela računanja na funkcionalne cjeline",
+      "Podjela podataka nad kojima algoritam radi na manje cjeline",
+      "Postupak optimizacije pristupa memoriji",
+      "Postupak pridruživanja zadataka procesorima"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #141"
+  },
+  {
+    "id": 142,
+    "question": "Koja je uloga ‘MPI_Finalize()‘ funkcije?",
+    "options": [
+      "Inicijalizira MPI okolinu",
+      "Nalazi se na kraju MPI programa i završava rad s MPI-em",
+      "Stvara novi komunikator",
+      "Vraća broj procesa u grupi"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #142"
+  },
+  {
+    "id": 144,
+    "question": "Što je glavni problem kod prilagodbe sinkronih PRAM algoritama na asinkroni aPRAM model?",
+    "options": [
+      "PRAM algoritmi se ne mogu izvoditi na aPRAM modelu",
+      "Potrebno je umetnuti sinkronizacijske ograde nakon operacija kako bi se osigurala ispravnost, što\nznačajno povećava vrijeme izvođenja",
+      "Asinkroni model nema globalnu memoriju",
+      "Svi aPRAM procesori su jednako brzi"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #144"
+  },
+  {
+    "id": 145,
+    "question": "U kontekstu paralelnih programa, što je \"modularnost\"?",
+    "options": [
+      "Mogućnost prilagodbe proizvoljnom broju procesora",
+      "Mogućnost uporabe dijelova algoritma unutar različitih paralelnih programa",
+      "Veći omjer lokalnog u odnosu na udaljeni pristup memoriji",
+      "Sposobnost izvođenja više radnji istovremeno"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #145"
+  },
+  {
+    "id": 148,
+    "question": "Koja je uloga ‘MPI_Request‘ objekta u neblokirajućim MPI operacijama?",
+    "options": [
+      "Sadrži podatke koji se šalju",
+      "Koristi se za ispitivanje završetka neblokirajuće operacije (npr. s ‘MPI_Wait‘ ili ‘MPI_Test‘)",
+      "Definira komunikacijsku grupu",
+      "Sadrži kod greške"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #148"
+  },
+  {
+    "id": 149,
+    "question": "Zašto je u PRAM algoritmu za zbroj prefiksa potrebna pretpostavka o asocijativnosti operatora?",
+    "options": [
+      "Zato što operator mora biti i komutativan",
+      "Zato što omogućuje izračun u obliku binarnog stabla, gdje redoslijed zbrajanja nije fiksan",
+      "Zato što svi operatori moraju biti binarni",
+      "Pretpostavka nije potrebna"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #149"
+  },
+  {
+    "id": 153,
+    "question": "Koja je ključna razlika u komunikaciji između neblokirajućih funkcija ‘MPI_Wait‘ i ‘MPI_Test‘?",
+    "options": [
+      "‘MPI_Wait‘ se koristi samo za slanje, a ‘MPI_Test‘ samo za primanje.",
+      "‘MPI_Wait‘ ne vraća kontrolu dok operacija ne završi, dok ‘MPI_Test‘ vraća kontrolu\nodmah i postavlja zastavicu (flag) koja pokazuje je li operacija završila.",
+      "‘MPI_Test‘ je brži, ali manje pouzdan od ‘MPI_Wait‘.",
+      "Nema razlike, to su sinonimi za istu funkciju."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #153"
+  },
+  {
+    "id": 155,
+    "question": "Što će se dogoditi ako dva procesa (0 i 1) izvrše sljedeći MPI kod, pod pretpostavkom da je\n‘MPI_Bcast‘ sinkronizirajuća operacija?\n  ```c\n  // Proces 0\n  MPI_Bcast(buf1, ..., 0, ...);\n  MPI_Bcast(buf2, ..., 1, ...);\n  // Proces 1\n  MPI_Bcast(buf2, ..., 1, ...);\n  MPI_Bcast(buf1, ..., 0, ...);\n  ```",
+    "options": [
+      "Program će se uspješno izvršiti.",
+      "Doći će do potpunog zastoja (deadlock) jer oba procesa čekaju jedan na drugoga u\nrazličitim ‘Bcast‘ pozivima.",
+      "Samo će proces 0 uspješno završiti.",
+      "Program će javiti grešku, ali neće doći do zastoja."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #155"
+  },
+  {
+    "id": 161,
+    "question": "Koja je glavna prednost korištenja ‘MPI_Iprobe‘ ili ‘MPI_Probe‘ prije poziva ‘MPI_Recv‘?",
+    "options": [
+      "Automatski alociraju memoriju za primanje poruke.",
+      "Omogućuju provjeru postojanja i karakteristika (veličina, pošiljatelj, tag) dolazne poruke\nprije nego što se ona primi, što je korisno za rukovanje porukama nepoznate veličine.",
+      "Jamče da će poruka biti primljena brže.",
+      "Služe isključivo za slanje poruka."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #161"
+  },
+  {
+    "id": 163,
+    "question": "Koja je temeljna razlika u izvedbi između ‘MPI_Send‘ i ‘MPI_Ssend‘ (sinkroni send)?",
+    "options": [
+      "‘MPI_Send‘ je neblokirajući, a ‘MPI_Ssend‘ je blokirajući.",
+      "‘MPI_Ssend‘ jamči da povratak iz funkcije neće nastupiti dok proces primatelj ne pozove\nodgovarajući ‘MPI_Recv‘, dok kod ‘MPI_Send‘ to nije garantirano.",
+      "‘MPI_Ssend‘ može slati podatke samo unutar istog računala.",
+      "‘MPI_Send‘ šalje podatke, a ‘MPI_Ssend‘ samo status."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #163"
+  },
+  {
+    "id": 164,
+    "question": "Koja je temeljna pretpostavka algoritma za računanje elemenata matrice gdje svaki procesor računa\nsvoj dio?\n  ```\n  ponovi za moje indekse retka\n     ponovi za moje indekse stupca\n      Matrica[i,j] = Funkcija(i,j);\n  ```",
+    "options": [
+      "Matrica mora biti kvadratna.",
+      "Računanje vrijednosti elementa ‘Matrica[i,j]‘ ne zahtijeva informaciju o drugim elementima\nmatrice.",
+      "Svi elementi matrice moraju biti pozitivni.",
+      "Funkcija ‘Funkcija(i,j)‘ mora biti linearna."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #164"
+  },
+  {
+    "id": 38,
+    "question": "Što je cilj faze \"aglomeracije\" u oblikovanju paralelnih algoritama?",
+    "options": [
+      "Podijeliti problem na što više malih zadataka",
+      "Grupirati zadatke kako bi se povećala zrnatost i smanjili komunikacijski troškovi",
+      "Dodijeliti svaki zadatak određenom procesoru",
+      "Analizirati performanse algoritma"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #38",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 48,
+    "question": "Koja je svrha faze \"pridruživanja\" (mapping) u oblikovanju paralelnih algoritama?",
+    "options": [
+      "Odrediti potrebnu komunikaciju",
+      "Grupirati zadatke u veće cjeline",
+      "Dodijeliti svaki zadatak (ili aglomeriranu grupu) konkretnom procesoru",
+      "Podijeliti problem na manje dijelove"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #48",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 49,
+    "question": "Koja je mana korištenja centraliziranog zadatka (voditelja) za distribuciju vrijednosti (npr. ‘A_MIN‘ u\nproblemu pretraživanja stabla)?",
+    "options": [
+      "Povećava lokalnost",
+      "Zahtijeva manje memorije",
+      "Slaba prilagodljivost i mogućnost da voditelj postane usko grlo",
+      "Olakšava ’rezanje’ podstabla"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #49",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 64,
+    "question": "Što je \"leptir\" (butterfly) struktura u kontekstu paralelnih algoritama?",
+    "options": [
+      "Način crtanja grafova",
+      "Komunikacijska struktura koja omogućuje ulančano izvođenje operacija poput ‘allreduce‘",
+      "Vrsta sortiranja",
+      "Model za raspodjelu zadataka"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #64",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 69,
+    "question": "Što znači ako je komunikacija u paralelnom programu \"strukturirana\"?",
+    "options": [
+      "Komunikacija se odvija nasumično",
+      "U komunikaciji sudjeluje grupa zadataka koji tvore pravilnu strukturu (npr. stablo, prsten)",
+      "Identitet zadataka koji komuniciraju se mijenja",
+      "Komunikacija je uvijek sinkrona"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #69",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 72,
+    "question": "Koja je uloga \"cikličkog pridruživanja\" (cyclic mapping)?",
+    "options": [
+      "Smanjenje količine komunikacije",
+      "Ujednačavanje opterećenja dodjeljivanjem svakog P-tog zadatka jednom procesoru",
+      "Povećanje zrnatosti",
+      "Optimiziranje pristupa memoriji"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #72",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 73,
+    "question": "Koji je nedostatak Jacobijeve metode u usporedbi s Gauss-Seidel metodom za numeričko\nrješavanje?",
+    "options": [
+      "Teže ju je paralelizirati",
+      "Obično ima lošiju (sporiju) konvergenciju",
+      "Zahtijeva više memorije",
+      "Koristi vrijednosti iz trenutne iteracije"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #73",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 74,
+    "question": "Kako \"branch and bound\" algoritam optimizira pretraživanje stabla?",
+    "options": [
+      "Pretražuje stablo u širinu",
+      "Ne uzima u obzir (reže) podstabla čiji je roditeljski čvor već lošiji od najboljeg do tada pronađenog\nrješenja",
+      "Generira sve moguće čvorove prije početka pretraživanja",
+      "Koristi genetske operatore za pronalazak rješenja"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #74",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 85,
+    "question": "Koji je glavni nedostatak algoritma pretraživanja stabla gdje se za svaki čvor stvara novi zadatak?",
+    "options": [
+      "Sporo izvođenje",
+      "Algoritam pretražuje stablo u širinu, što ne omogućuje učinkovitu primjenu \"rezanja\" podstabla\n(pruning)",
+      "Zahtijeva previše memorije",
+      "Teško ga je paralelizirati"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #85",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 91,
+    "question": "Koja od sljedećih metoda se ne koristi za ujednačavanje opterećenja?",
+    "options": [
+      "Rekurzivna bisekcija",
+      "Cikličko pridruživanje",
+      "Vjerojatnosne metode",
+      "Amdahlov zakon"
+    ],
+    "correct": 3,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #91",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 92,
+    "question": "Koji je nedostatak dinamičkog ujednačavanja opterećenja?",
+    "options": [
+      "Radi samo za mali broj procesora",
+      "Ne može se prilagoditi promjenama opterećenja",
+      "Postupak ujednačavanja sam po sebi troši vrijeme i resurse",
+      "Zahtijeva globalnu sinkronizaciju nakon svake operacije"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #92",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 95,
+    "question": "Koji je glavni problem kod paralelizacije Gauss-Seidel metode?",
+    "options": [
+      "Zahtijeva previše komunikacije",
+      "Postoji podatkovna ovisnost jer se za računanje nove vrijednosti koriste već izračunate vrijednosti iz\niste iteracije",
+      "Ne konvergira u paralelnoj izvedbi",
+      "Zahtijeva zajedničku memoriju"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #95",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 105,
+    "question": "Koja je uloga \"pridruživanja\" (mapping) u fazama oblikovanja paralelnog algoritma?",
+    "options": [
+      "Definiranje potrebne komunikacije među zadacima",
+      "Grupiranje zadataka u veće cjeline",
+      "Dodjeljivanje svakog zadatka konkretnom procesoru",
+      "Podjela problema na manje dijelove"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #105",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 120,
+    "question": "Koji je jedan od glavnih ciljeva faze aglomeracije u dizajnu paralelnih algoritama?",
+    "options": [
+      "Smanjiti zrnatost",
+      "Povećati zrnatost kako bi se ujednačili troškovi komunikacije i računanja",
+      "Povećati broj zadataka",
+      "Zanemariti komunikacijske troškove"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #120",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 126,
+    "question": "Koji je glavni nedostatak vjerojatnosnih metoda za ujednačavanje opterećenja?",
+    "options": [
+      "Veliki troškovi samog postupka raspodjele",
+      "Mogu prouzročiti velike komunikacijske troškove jer ne uzimaju u obzir lokalnost",
+      "Rade dobro samo za mali broj zadataka",
+      "Nisu prilagodljive"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #126",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 134,
+    "question": "Koji je glavni razlog za korištenje uvišestručenog računanja (computation replication) u fazi\naglomeracije?",
+    "options": [
+      "Da bi se povećali ukupni troškovi",
+      "Da bi se smanjila potrebna komunikacija ili ukupno vrijeme izvođenja, iako se količina računanja\npovećava",
+      "Da bi se olakšalo debugiranje",
+      "Da bi se smanjila potrošnja memorije"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #134",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 139,
+    "question": "Koji je glavni nedostatak metode ‘manager/worker‘ za raspoređivanje zadataka?",
+    "options": [
+      "Radnici su neaktivni većinu vremena",
+      "Voditelj (manager) može postati usko grlo ako ima previše radnika ili su zahtjevi česti",
+      "Nije moguće detektirati završetak",
+      "Zahtijeva da svi zadaci budu jednake veličine"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #139",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 147,
+    "question": "Kako \"voditelj/radnik\" model može biti poboljšan da se iskoristi vrijeme potrebno za komunikaciju?",
+    "options": [
+      "Smanjenjem broja radnika",
+      "Korištenjem ‘prefetching‘-a, gdje radnici dohvaćaju sljedeći posao prije završetka trenutnog",
+      "Povećanjem veličine poruka",
+      "Korištenjem samo jednog radnika"
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #147",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 156,
+    "question": "Kako komunikacijska struktura hiperkocke omogućuje izvedbu operacije ‘allreduce‘ (zbrajanje svih\nelemenata tako da svi imaju konačni rezultat) u $\\log n$ koraka?",
+    "options": [
+      "Slanjem svih podataka jednom centralnom procesoru.",
+      "U svakom od $\\log n$ koraka, svaki procesor komunicira s jednim svojim susjedom,\nrazmjenjuje podatke i ažurira svoju sumu.",
+      "Korištenjem prstenaste topologije u $n-1$ koraka.",
+      "Tako da svaki procesor šalje svoje podatke svim ostalim procesorima."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #156",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 159,
+    "question": "U algoritmu komunikacije strukturom hiperkocke, kako procesor određuje ID procesora s kojim\nkomunicira u koraku ‘i‘?\n‘‘‘c\nza(i=0; i < log n; i++) {\ndest_ID = proces_ID XOR 2^i;\n...\n}\n‘‘‘",
+    "options": [
+      "‘dest_ID = proces_ID + 2^i‘",
+      "‘dest_ID = proces_ID - 2^i‘",
+      "‘dest_ID = proces_ID XOR 2^i‘ (bitwise XOR)",
+      "‘dest_ID‘ je uvijek ‘proces_ID + 1‘"
+    ],
+    "correct": 2,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #159",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": 165,
+    "question": "Zašto je komunikacijska struktura hiperkocke skalabilnija za globalne operacije od jednostavne\nstrukture gdje svi šalju podatke jednom procesoru?",
+    "options": [
+      "Zato što koristi manje poruka.",
+      "Zato što raspodjeljuje komunikaciju i računanje na sve procesore u logaritamskom broju\nkoraka, izbjegavajući usko grlo na jednom procesoru.",
+      "Zato što zahtijeva manje memorije.",
+      "Zato što je jednostavnija za implementaciju."
+    ],
+    "correct": 1,
+    "source": "PARPRO_PITALICE",
+    "sourceLabel": "PARPRO #165",
+    "topic": "5. poglavlje"
+  },
+  {
+    "id": "MI2025-1",
+    "question": "Koje su prednosti MIMD?",
+    "options": [
+      "Grananja unutar petlji moraju se primijeniti na sve procesore što olakšava sinkronizaciju",
+      "…",
+      "Ujednačavanje opterećenja je teže",
+      "Svi procesori mogu istovremeno izvršavati različite instrukcije",
+      "…"
+    ],
+    "correct": 3,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-1",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-2",
+    "question": "Koje dvije veličine povezuje Amdahlov zakon?",
+    "options": [
+      "Slijedni dio programa, broj procesora i učinkovitost",
+      "…",
+      "Slijedni i paralelni dio programa, broj jezgri i ubrzanje",
+      "…",
+      "…"
+    ],
+    "correct": 2,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-2",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-3",
+    "question": "Kako definiramo zrnatost?",
+    "options": [
+      "…",
+      "…",
+      "…",
+      "Omjer količine računanja i komuniciranja",
+      "…"
+    ],
+    "correct": 3,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-3",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-4",
+    "question": "Kako zrnatost utječe na izvođenje programa?",
+    "options": [
+      "Kod sitnozrnatog algoritma teže je ujednačiti opterećenje procesa.",
+      "…",
+      "Sitnozrnatost omogućava bolje dinamičko uravnotežavanje",
+      "…",
+      "…"
+    ],
+    "correct": 2,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-4",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-5",
+    "question": "Što od navedenog ne vrijedi za MPI?",
+    "options": [
+      "Kolektivne funkcije poput MPI_Bcast zahtijevaju sudjelovanje svih procesa",
+      "Probe omogućuje dohvaćanje veličine dolazne poruke prije primanja",
+      "Kolektivna komunikacija uključuje više procesa unutar istog komunikatora",
+      "Komunikatori se koriste za slanja poruka procesima različitih MPI programa",
+      "Point-to-point komunikacija omogućuje slanje poruka između točno dva procesa"
+    ],
+    "correct": 3,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-5",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-6",
+    "question": "Suprotna operacija od MPI_Scatter je:",
+    "options": [
+      "MPI_Barrier",
+      "MPI_Sync",
+      "MPI_Gather",
+      "MPI_Reduce",
+      "MPI_Probe"
+    ],
+    "correct": 2,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-6",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-7",
+    "question": "Što je točno za MPI_Send?",
+    "options": [
+      "Moguć je povratak iz MPI_Send prije MPI_Recv",
+      "Povratak iz MPI_Send znači da je poruka poslana",
+      "Povratak iz MPI_Send znači da je poruka primljena",
+      "…",
+      "MPI_Recv nije potreban jer se poruke šalju automatski"
+    ],
+    "correct": 0,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-7",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-8",
+    "question": "Program za pitanja MI2025 #8 i #10:\n\nint a, b, c = 0;\n\nif (id == 1) {\n  MPI_Recv(&a, MPI_ANY_SOURCE);\n  MPI_Recv(&b, MPI_ANY_SOURCE);\n  c = 2*a - b;\n  MPI_Barrier();\n  if (c < 5)\n    MPI_Send(&c, 3);\n  else\n    MPI_Send(&c, 2);\n}\n\nif (id == 2) {\n  MPI_Send(&ID, a);\n  MPI_Barrier();\n  MPI_Recv(&a, 1);\n  b = a*a;\n  MPI_Send(b, 3);\n  c = a+b;\n}\n\nif (id == 3) {\n  MPI_Send(id, 1);\n  MPI_Barrier();\n  MPI_Recv(&a, 1);\n  MPI_Send(a, 2);\n  MPI_Recv(&b, 2);\n  c = a*b;\n}\n\nKolika je vrijednost c u procesu 1?",
+    "options": [
+      "1 ili 4",
+      "6 ili 7",
+      "8",
+      "2",
+      "nešto drugo"
+    ],
+    "correct": 0,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-8",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-10",
+    "question": "Program za pitanja MI2025 #8 i #10:\n\nint a, b, c = 0;\n\nif (id == 1) {\n  MPI_Recv(&a, MPI_ANY_SOURCE);\n  MPI_Recv(&b, MPI_ANY_SOURCE);\n  c = 2*a - b;\n  MPI_Barrier();\n  if (c < 5)\n    MPI_Send(&c, 3);\n  else\n    MPI_Send(&c, 2);\n}\n\nif (id == 2) {\n  MPI_Send(&ID, a);\n  MPI_Barrier();\n  MPI_Recv(&a, 1);\n  b = a*a;\n  MPI_Send(b, 3);\n  c = a+b;\n}\n\nif (id == 3) {\n  MPI_Send(id, 1);\n  MPI_Barrier();\n  MPI_Recv(&a, 1);\n  MPI_Send(a, 2);\n  MPI_Recv(&b, 2);\n  c = a*b;\n}\n\nŠto od navedenog neće dovesti do potpunog zastoja?",
+    "options": [
+      "Razdvajanje procesora u komunikatore",
+      "Primjena MPI_Com_split za restrukturiranje topologije procesa",
+      "Dodavanje barijere nakon svakog poziva MPI_Recv",
+      "Zadavanje MPI_ANY_SOURCE kao izvorište svake funkcije MPI_Recv()",
+      "Dodavanje barijere nakon svakog poziva MPI_Send"
+    ],
+    "correct": 3,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-10",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-11",
+    "question": "Što opisuje PRAM?",
+    "options": [
+      "Koristi zajedničku memoriju i svi procesi izvršavaju se sinkrono.",
+      "Omogućuje proizvoljan broj procesa koji ne moraju raditi u istom taktu",
+      "Svaki procesor ima pristup samo vlastitoj lokalnoj memoriji",
+      "Zahtijeva da svi procesori u svakom trenutku izvode istu instrukciju",
+      "To je sinkroni SIMD model s lokalnom memorijom"
+    ],
+    "correct": 0,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-11",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-12",
+    "question": "Funkcija Scan može se primijeniti na svaku operaciju koja je:",
+    "options": [
+      "binarna",
+      "asocijativna i komutativna",
+      "binarna, asocijativna i komutativna",
+      "binarna i asocijativna",
+      "još nešto"
+    ],
+    "correct": 3,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-12",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-13",
+    "question": "Kojom operacijom iz polja 1 2 3 4 2 3 5 6 4 7 dobiti 1 2 3 4 4 4 5 6 6 7?",
+    "options": [
+      "*_reduce",
+      "and_scan",
+      "or_scan",
+      "max_reduce",
+      "max_scan"
+    ],
+    "correct": 4,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-13",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-14",
+    "question": "Kolika je složenost algoritama zbroja prefiksa s p < n procesa?",
+    "options": [
+      "…",
+      "O(log p)",
+      "O(n log n)",
+      "O(log n)",
+      "O(n/p + log p)"
+    ],
+    "correct": 4,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-14",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-16",
+    "question": "Ako za dohvat udaljene memorije treba d = 4 vremenska odsječka, a napravljena su 3 uzastopna dohvata, koliko će ukupno vremenskih odsječaka biti potrebno?",
+    "options": [
+      "6",
+      "7",
+      "5",
+      "4",
+      "12"
+    ],
+    "correct": 0,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-16",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-17",
+    "question": "Što od navedenog nije APRAM instrukcija?",
+    "options": [
+      "globalno čitanje",
+      "globalno pisanje",
+      "sinkronizacija",
+      "lokalna operacija",
+      "globalno računanje"
+    ],
+    "correct": 4,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-17",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-18",
+    "question": "U koliko koraka se izvršava jedna PRAM instrukcija na jednom APRAM računalu jednakog broja procesora?",
+    "options": [
+      "2B - 2d + 1",
+      "2B + 2d + 1",
+      "3B + 2d",
+      "…"
+    ],
+    "correct": 1,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-18",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-19",
+    "question": "Program za pitanja MI2025 #19 i #20:\n\n        p1        p2        p3\n1.      čitaj A   *         čitaj D\n2.      čitaj B   piši C    *\n3.      *         čitaj A   piši D\n4.      piši A    *         *\n5.      čitaj C   piši B    *\n6.      *         *         *\n7.      piši D    *         *\n\nKoliko je najmanje vremenskih odsječaka potrebno za izvođenje ovog programa?",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "2",
+      "1"
+    ],
+    "correct": 3,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-19",
+    "topic": "MI2025 ABCD"
+  },
+  {
+    "id": "MI2025-20",
+    "question": "Program za pitanja MI2025 #19 i #20:\n\n        p1        p2        p3\n1.      čitaj A   *         čitaj D\n2.      čitaj B   piši C    *\n3.      *         čitaj A   piši D\n4.      piši A    *         *\n5.      čitaj C   piši B    *\n6.      *         *         *\n7.      piši D    *         *\n\nKoje od navedenih operacija se ne mogu izvoditi istovremeno?",
+    "options": [
+      "P1: čitaj A, P2: čitaj B",
+      "P1: čitaj A, P3: piši C",
+      "P1: piši B, P2: čitaj B",
+      "P1: čitaj C, P3: piši A",
+      "…"
+    ],
+    "correct": 2,
+    "source": "MI2025",
+    "sourceLabel": "MI2025-20",
+    "topic": "MI2025 ABCD"
+  }
+];
+
+    let round = 1;
+    let queue = [];
+    let index = 0;
+    let wrongThisRound = [];
+    let correctThisRound = 0;
+    let answered = false;
+    let currentOptionOrder = [];
+
+    const els = {
+      round: document.getElementById('round'),
+      position: document.getElementById('position'),
+      correctRound: document.getElementById('correctRound'),
+      totalQuestions: document.getElementById('totalQuestions'),
+      progressFill: document.getElementById('progressFill'),
+      quizArea: document.getElementById('quizArea'),
+      qid: document.getElementById('qid'),
+      questionText: document.getElementById('questionText'),
+      answers: document.getElementById('answers'),
+      feedback: document.getElementById('feedback'),
+      nextBtn: document.getElementById('nextBtn'),
+      betweenRounds: document.getElementById('betweenRounds'),
+      doneArea: document.getElementById('doneArea'),
+      restartBtnDone: document.getElementById('restartBtnDone')
+    };
+
+    function shuffle(array) {
+      const a = [...array];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startQuiz() {
+      round = 1;
+      queue = shuffle(QUESTIONS);
+      index = 0;
+      wrongThisRound = [];
+      correctThisRound = 0;
+      answered = false;
+      els.doneArea.classList.add('hidden');
+      els.betweenRounds.classList.add('hidden');
+      els.quizArea.classList.remove('hidden');
+      renderQuestion();
+    }
+
+    function updateStats() {
+      els.round.textContent = round;
+      els.position.textContent = `${Math.min(index + 1, queue.length)} / ${queue.length}`;
+      els.correctRound.textContent = correctThisRound;
+      els.totalQuestions.textContent = QUESTIONS.length;
+      const progress = queue.length ? (index / queue.length) * 100 : 100;
+      els.progressFill.style.width = `${progress}%`;
+    }
+
+    function renderQuestion() {
+      if (index >= queue.length) {
+        finishRound();
+        return;
+      }
+      answered = false;
+      els.feedback.className = 'feedback';
+      els.feedback.textContent = '';
+      els.nextBtn.classList.add('hidden');
+      els.betweenRounds.classList.add('hidden');
+      els.quizArea.classList.remove('hidden');
+      els.doneArea.classList.add('hidden');
+
+      const q = queue[index];
+      els.qid.textContent = q.sourceLabel ? `${q.sourceLabel} · ${q.topic || q.source || 'pitanje'}` : `Pitanje #${q.id}`;
+      els.questionText.textContent = q.question;
+      els.answers.innerHTML = '';
+
+      currentOptionOrder = shuffle(q.options.map((text, originalIndex) => ({ text, originalIndex })));
+      currentOptionOrder.forEach((opt, shownIndex) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.type = 'button';
+        btn.dataset.originalIndex = opt.originalIndex;
+        const prefix = String.fromCharCode(65 + shownIndex);
+        btn.innerHTML = `<span class="answer-prefix">${prefix})</span>${escapeHtml(opt.text)}`;
+        btn.addEventListener('click', () => chooseAnswer(btn, opt.originalIndex));
+        els.answers.appendChild(btn);
+      });
+
+      updateStats();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function chooseAnswer(button, chosenOriginalIndex) {
+      if (answered) return;
+      answered = true;
+      const q = queue[index];
+      const buttons = [...els.answers.querySelectorAll('button')];
+      const isCorrect = chosenOriginalIndex === q.correct;
+
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const originalIndex = Number(btn.dataset.originalIndex);
+        if (originalIndex === q.correct) btn.classList.add('correct');
+      });
+
+      if (isCorrect) {
+        correctThisRound += 1;
+        els.feedback.className = 'feedback good';
+        els.feedback.textContent = 'Točno!';
+      } else {
+        button.classList.add('wrong');
+        wrongThisRound.push(q);
+        const correctText = q.options[q.correct];
+        els.feedback.className = 'feedback bad';
+        els.feedback.textContent = `Netočno. Točan odgovor je: ${correctText}`;
+      }
+      els.nextBtn.classList.remove('hidden');
+      updateStats();
+    }
+
+    function nextQuestion() {
+      index += 1;
+      els.progressFill.style.width = `${(index / queue.length) * 100}%`;
+      renderQuestion();
+    }
+
+    function finishRound() {
+      els.progressFill.style.width = '100%';
+      if (wrongThisRound.length === 0) {
+        els.quizArea.classList.add('hidden');
+        els.betweenRounds.classList.add('hidden');
+        els.doneArea.classList.remove('hidden');
+        els.position.textContent = `${queue.length} / ${queue.length}`;
+        return;
+      }
+      const wrongCount = wrongThisRound.length;
+      els.quizArea.classList.add('hidden');
+      els.doneArea.classList.add('hidden');
+      els.betweenRounds.classList.remove('hidden');
+      els.betweenRounds.innerHTML = `
+        <strong>Runda ${round} završena.</strong><br>
+        Netočno odgovorena pitanja: <strong>${wrongCount}</strong>. U sljedećoj rundi dobivaš samo ta pitanja, promiješana novim redoslijedom.<br><br>
+        <button class="primary" id="startNextRoundBtn">Kreni u rundu ${round + 1}</button>
+      `;
+      document.getElementById('startNextRoundBtn').addEventListener('click', () => {
+        round += 1;
+        queue = shuffle(wrongThisRound);
+        wrongThisRound = [];
+        correctThisRound = 0;
+        index = 0;
+        renderQuestion();
+      });
+      els.position.textContent = `${queue.length} / ${queue.length}`;
+    }
+
+    els.nextBtn.addEventListener('click', nextQuestion);
+    els.restartBtnDone.addEventListener('click', startQuiz);
+
+    startQuiz();
+  </script>
+</body>
+</html>
