@@ -87,7 +87,7 @@ void PrintTask(const Task &task) {
 
 void GenerateTasks(Board &board, int depth, int splitDepth, int currentDepth, Task currentTask,
                    vector<Task> &tasks) {
-    // ako smo dosegli max dubinu onda spremamo taj zadatak
+    // ako smo dosegli max split dubinu onda spremamo taj zadatak
     if (currentDepth == splitDepth) {
         currentTask.depthLeft = depth - currentDepth;
         currentTask.taskIndex = tasks.size();

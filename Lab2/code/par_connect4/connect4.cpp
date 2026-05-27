@@ -106,6 +106,8 @@ int main(int argc, char **argv) {
             startTask.lastMover = EMPTY;
             startTask.taskIndex = -1;
 
+            double startTime = MPI_Wtime();
+
             GenerateTasks(B, depth, splitDepth, 0, startTask, tasks);
 
             cout << "Broj zadataka: " << tasks.size() << endl;
@@ -117,6 +119,9 @@ int main(int argc, char **argv) {
             B.Move(bestMove, CPU);
             B.Save(argv[1]);
 
+            double endTime = MPI_Wtime();
+
+            cout << "Vrijeme racunanja: " << (endTime - startTime) << " sekundi" << endl;
             cout << "Racunalo je odigralo stupac " << bestMove + 1 << endl;
 
             PrintBoard(B);
