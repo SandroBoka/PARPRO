@@ -37,6 +37,11 @@ public:
     return cols;
   }
 
+  int Rows() // broj redaka
+  {
+    return rows;
+  }
+
   data *operator[](const int row);
   bool MoveLegal(const int col);               // moze li potez u stupcu col
   bool Move(const int col, const data player); // napravi potez

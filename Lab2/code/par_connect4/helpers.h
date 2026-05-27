@@ -30,6 +30,8 @@ void GenerateTasks(Board &board, int depth, int splitDepth, int currentDepth, Ta
 
 double ExecuteTask(Board board, const Task &task);
 
+void PrintBoard(Board &board);
+
 bool TaskMatchesPrefix(const Task &task, const vector<int> &prefix);
 
 bool PrefixExists(const vector<Task> &tasks, const vector<int> &prefix);

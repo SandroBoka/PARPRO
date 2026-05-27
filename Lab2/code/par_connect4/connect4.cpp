@@ -13,10 +13,12 @@ const int TAG_TASK = 1;
 const int TAG_RESULT = 2;
 const int TAG_STOP = 3;
 
-void WorkerLoop(Board &board);
+void WorkerLoop(const char *boardFile);
 
 void RunTaskAsMaster(Board &board, const vector<Task> &tasks, vector<double> &taskResults,
                      int size);
+
+void StopWorkers(int size);
 
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
@@ -35,14 +37,22 @@ int main(int argc, char **argv) {
     }
 
     Board B;
+
+    if (rank == 0) {
+        B.Load(argv[1]);
+        Board emptyBoard(B.Rows(), B.Columns());
+        emptyBoard.Save(argv[1]);
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD); // cekanje na sve procese
     B.Load(argv[1]);
 
-    int depth = DEPTH;
+    int depth = DEPTH; // provjera prvog argumenta
     if (argc > 2) {
         depth = atoi(argv[2]);
     }
 
-    int splitDepth = MAX_SPLIT_DEPTH;
+    int splitDepth = MAX_SPLIT_DEPTH; // provjera drugog argumenta
     if (argc > 3) {
         splitDepth = atoi(argv[3]);
 
@@ -60,30 +70,73 @@ int main(int argc, char **argv) {
         cout << "Dubina: " << depth << endl;
         cout << "Dubina dijeljenja " << splitDepth << endl;
 
-        vector<Task> tasks;
-        vector<double> taskResults;
+        bool gameOver = false;
 
-        Task startTask;
-        startTask.moveCount = 0;
-        startTask.depthLeft = depth;
-        startTask.lastMover = EMPTY;
+        PrintBoard(B);
 
-        GenerateTasks(B, depth, splitDepth, 0, startTask, tasks);
+        while (!gameOver) {
+            int humanInput;
+            cin >> humanInput;
 
-        cout << "Broj zadataka: " << tasks.size() << endl;
+            int humanMove = humanInput - 1;
 
-        RunTaskAsMaster(B, tasks, taskResults, size);
+            while (humanMove < 0 || humanMove >= B.Columns() || !B.MoveLegal(humanMove)) {
+                cout << "Neispravan potez. Unesite ponovno" << endl;
+                cin >> humanInput;
+                humanMove = humanInput - 1;
+            }
 
-        int bestMove = ChooseBestMove(tasks, taskResults, B.Columns());
+            B.Move(humanMove, HUMAN);
+            B.Save(argv[1]);
+
+            PrintBoard(B);
+
+            if (B.GameEnd(humanMove)) {
+                cout << "Igra zavrsena! Pobjeda igraca." << endl;
+                gameOver = true;
+                break;
+            }
+
+            vector<Task> tasks;
+            vector<double> taskResults;
+
+            Task startTask;
+            startTask.moveCount = 0;
+            startTask.depthLeft = depth;
+            startTask.lastMover = EMPTY;
+            startTask.taskIndex = -1;
+
+            GenerateTasks(B, depth, splitDepth, 0, startTask, tasks);
+
+            cout << "Broj zadataka: " << tasks.size() << endl;
+
+            RunTaskAsMaster(B, tasks, taskResults, size); // podjela i skupljanje zadataka
+
+            int bestMove = ChooseBestMove(tasks, taskResults, B.Columns());
+
+            B.Move(bestMove, CPU);
+            B.Save(argv[1]);
+
+            cout << "Racunalo je odigralo stupac " << bestMove + 1 << endl;
+
+            PrintBoard(B);
+
+            if (B.GameEnd(bestMove)) {
+                cout << "Igra zavrsena! Pobjeda racunala." << endl;
+                gameOver = true;
+            }
+        }
+
+        StopWorkers(size);
     } else {
-        WorkerLoop(B);
+        WorkerLoop(argv[1]);
     }
 
     MPI_Finalize();
     return 0;
 }
 
-void WorkerLoop(Board &board) {
+void WorkerLoop(const char *boardFile) {
     while (true) {
         Task task;
         MPI_Status status;
@@ -95,6 +148,8 @@ void WorkerLoop(Board &board) {
         }
 
         Result result;
+        Board board;
+        board.Load(boardFile);
 
         result.value = ExecuteTask(board, task);
         result.taskIndex = task.taskIndex;
@@ -118,7 +173,6 @@ void RunTaskAsMaster(Board &board, const vector<Task> &tasks, vector<double> &ta
 
     int nextTaskIndex = 0;
     int finishedTasks = 0;
-    Task dummyTask;
 
     for (int worker = 1; worker < size; worker++) {
         // prva podjela zadataka
@@ -127,8 +181,6 @@ void RunTaskAsMaster(Board &board, const vector<Task> &tasks, vector<double> &ta
                      MPI_COMM_WORLD);
 
             nextTaskIndex++;
-        } else { // zaustavljanje ako nema vise
-            MPI_Send(&dummyTask, 0, MPI_BYTE, worker, TAG_STOP, MPI_COMM_WORLD);
         }
     }
 
@@ -150,8 +202,14 @@ void RunTaskAsMaster(Board &board, const vector<Task> &tasks, vector<double> &ta
                      MPI_COMM_WORLD);
 
             nextTaskIndex++;
-        } else { // zaustavljanje
-            MPI_Send(&dummyTask, 0, MPI_BYTE, worker, TAG_STOP, MPI_COMM_WORLD);
         }
+    }
+}
+
+void StopWorkers(int size) {
+    Task dummyTask;
+
+    for (int worker = 1; worker < size; worker++) {
+        MPI_Send(&dummyTask, 0, MPI_BYTE, worker, TAG_STOP, MPI_COMM_WORLD);
     }
 }

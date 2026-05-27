@@ -129,6 +129,36 @@ double ExecuteTask(Board board, const Task &task) {
     return Evaluate(board, task.lastMover, lastMove, task.depthLeft);
 }
 
+void PrintBoard(Board &board) {
+    cout << endl;
+
+    for (int r = board.Rows() - 1; r >= 0; r--) {
+        for (int c = 0; c < board.Columns(); c++) {
+            char cell = '-';
+
+            if (board[r][c] == CPU) {
+                cell = 'O';
+            } else if (board[r][c] == HUMAN) {
+                cell = 'X';
+            }
+
+            cout << " " << cell << " ";
+        }
+        cout << endl;
+    }
+
+    for (int c = 0; c < board.Columns(); c++) {
+        cout << "---";
+    }
+    cout << endl;
+
+    for (int c = 0; c < board.Columns(); c++) {
+        cout << " " << c + 1 << " ";
+    }
+
+    cout << endl << endl;
+}
+
 bool TaskMatchesPrefix(const Task &task, const vector<int> &prefix) {
     if (task.moveCount < prefix.size()) {
         return false;
